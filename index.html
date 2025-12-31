@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SECURITY BREACH</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: red;
+    font-family: monospace;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    text-align: center;
+    animation: shake 0.1s infinite;
+  }
+
+  h1 {
+    font-size: 60px;
+    text-shadow: 0 0 20px red;
+  }
+
+  p {
+    font-size: 20px;
+  }
+
+  #terminal {
+    margin-top: 20px;
+    width: 80vw;
+    height: 40vh;
+    background: black;
+    border: 2px solid red;
+    padding: 10px;
+    overflow-y: auto;
+    text-align: left;
+    color: #00ff00;
+  }
+
+  @keyframes shake {
+    0% { transform: translate(1px, 1px); }
+    50% { transform: translate(-1px, -1px); }
+    100% { transform: translate(1px, -1px); }
+  }
+
+  .blink {
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1 class="blink">⚠ YOU HAVE BEEN HACKED ⚠</h1>
+  <p>Remote access established</p>
+  <p>IP Address: <span id="ip">192.168.0.1</span></p>
+
+  <div id="terminal"></div>
+</div>
+
+<audio autoplay loop>
+  <source src="https://www.soundjay.com/button/sounds/beep-10.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // Fake IP generator
+  document.getElementById("ip").innerText =
+    Math.floor(Math.random()*255)+"."+
+    Math.floor(Math.random()*255)+"."+
+    Math.floor(Math.random()*255)+"."+
+    Math.floor(Math.random()*255);
+
+  const terminal = document.getElementById("terminal");
+
+  const lines = [
+    "Initializing breach protocol...",
+    "Bypassing firewall...",
+    "Accessing system files...",
+    "Downloading browser history...",
+    "Uploading passwords...",
+    "Accessing webcam...",
+    "Encrypting files...",
+    "Deleting system32...",
+    "ERROR: User panic detected 😈",
+    "",
+    "Just kidding.",
+    "This is a prank website 😂",
+    "Close the tab, you're safe."
+  ];
+
+  let i = 0;
+
+  function addLine() {
+    if (i < lines.length) {
+      terminal.innerHTML += lines[i] + "<br>";
+      terminal.scrollTop = terminal.scrollHeight;
+      i++;
+      setTimeout(addLine, 800);
+    }
+  }
+
+  addLine();
+
+  // Try fullscreen (user can exit with ESC)
+  document.documentElement.requestFullscreen().catch(() => {});
+</script>
+
+</body>
+</html>
