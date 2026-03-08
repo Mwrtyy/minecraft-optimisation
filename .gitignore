@@ -1,0 +1,4 @@
+node_modules/
+dist/
+dist-exe/
+data/player-save.json
