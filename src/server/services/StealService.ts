@@ -36,6 +36,7 @@ export class StealService {
       startedAt: Date.now(),
       expiresAt: Date.now() + this.state.config.stealCarryTimeoutMs
     };
+    unit.worldPosition = { ...thief.worldPosition };
     thief.carriedUnitId = unitId;
     thief.statusFlags.carrying = true;
     thief.moveSpeed *= this.state.config.carryMoveSpeedMultiplier;
@@ -67,11 +68,17 @@ export class StealService {
 
     this.clearCarryPenalty(thiefId);
     unit.ownerPlayerId = thiefId;
+    unit.originalOwnerPlayerId = thiefId;
     unit.currentBaseId = thiefBase.baseId;
+    unit.originalBaseId = thiefBase.baseId;
     unit.slotIndex = slot;
     unit.carryData = null;
     assertTransition(unit.currentState, "OwnedPlaced", unit.unitInstanceId);
     unit.currentState = "OwnedPlaced";
+    unit.worldPosition = {
+      x: thiefBase.entryZone.x + (slot + 1) * 1.5,
+      y: thiefBase.entryZone.y + (slot + 1) * 1.5
+    };
     this.baseService.placeUnit(thiefBase.baseId, slot, unit.unitInstanceId);
 
     thief.sessionStats.steals += 1;
@@ -111,6 +118,13 @@ export class StealService {
     unit.carryData = null;
     assertTransition(unit.currentState, "OwnedPlaced", unit.unitInstanceId);
     unit.currentState = "OwnedPlaced";
+    const ownerBase = this.state.bases.get(ownerBaseId);
+    if (ownerBase) {
+      unit.worldPosition = {
+        x: ownerBase.entryZone.x + (slot + 1) * 1.5,
+        y: ownerBase.entryZone.y + (slot + 1) * 1.5
+      };
+    }
     this.baseService.placeUnit(ownerBaseId, slot, unit.unitInstanceId);
     // reason can be emitted to client through NetworkService event stream.
     void reason;

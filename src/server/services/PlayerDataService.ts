@@ -29,8 +29,23 @@ export class PlayerDataService {
   }
 
   removePlayer(playerId: string): void {
+    const player = this.state.players.get(playerId);
+    if (player) {
+      player.statusFlags.disconnected = true;
+    }
     this.state.players.delete(playerId);
     this.baseService.releaseBase(playerId);
+  }
+
+  setPosition(playerId: string, x: number, y: number): void {
+    const player = this.state.players.get(playerId);
+    if (!player) return;
+    player.worldPosition = { x, y };
+    if (!player.carriedUnitId) return;
+
+    const carried = this.state.units.get(player.carriedUnitId);
+    if (!carried) return;
+    carried.worldPosition = { x, y };
   }
 
   addCurrency(playerId: string, amount: number): void {

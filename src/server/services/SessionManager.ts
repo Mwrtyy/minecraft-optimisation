@@ -55,7 +55,7 @@ export class SessionManager {
         if (!p) return { type: "move_result", ok: false };
         const x = Number(msg.x ?? p.worldPosition.x);
         const y = Number(msg.y ?? p.worldPosition.y);
-        p.worldPosition = { x, y };
+        this.playerDataService.setPosition(playerId, x, y);
         return { type: "move_result", ok: true };
       }
       case "claim": {

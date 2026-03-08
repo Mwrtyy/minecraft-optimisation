@@ -115,6 +115,14 @@ export class UnitService {
     assertTransition(unit.currentState, "OwnedPlaced", unit.unitInstanceId);
     unit.currentState = "OwnedPlaced";
     unit.slotIndex = slot;
+    const ownerBase = this.state.bases.get(baseId);
+    if (ownerBase) {
+      // Place the unit at a deterministic position in the owner's base.
+      unit.worldPosition = {
+        x: ownerBase.entryZone.x + (slot + 1) * 1.5,
+        y: ownerBase.entryZone.y + (slot + 1) * 1.5
+      };
+    }
     this.baseService.placeUnit(baseId, slot, unit.unitInstanceId);
     player.sessionStats.claims += 1;
 
