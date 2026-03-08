@@ -1,0 +1,67 @@
+{
+  "starterCurrency": 120,
+  "spawnIntervalMs": 5000,
+  "despawnTimeMs": 22000,
+  "laneLength": 100,
+  "claimRange": 8,
+  "stealRange": 4,
+  "dropOffRange": 5,
+  "carryMoveSpeedMultiplier": 0.65,
+  "protectionDurationMs": 90000,
+  "incomeTickRateMs": 1000,
+  "baseInitialSlots": 3,
+  "baseMaxSlots": 10,
+  "baseUpgradeCosts": [120, 240, 400, 700, 1000, 1500, 2200],
+  "stealCarryTimeoutMs": 60000,
+  "eventSpawnPool": [],
+  "unitDefinitions": [
+    {
+      "id": "common_bot",
+      "displayName": "Common Courier",
+      "rarity": "Common",
+      "buyPrice": 80,
+      "incomePerSecond": 3,
+      "spawnWeight": 55,
+      "moveSpeed": 5
+    },
+    {
+      "id": "rare_bot",
+      "displayName": "Rare Relay",
+      "rarity": "Rare",
+      "buyPrice": 220,
+      "incomePerSecond": 9,
+      "spawnWeight": 25,
+      "moveSpeed": 5.5
+    },
+    {
+      "id": "epic_bot",
+      "displayName": "Epic Harvester",
+      "rarity": "Epic",
+      "buyPrice": 520,
+      "incomePerSecond": 24,
+      "spawnWeight": 13,
+      "moveSpeed": 6,
+      "stealDifficulty": 1.2
+    },
+    {
+      "id": "legendary_bot",
+      "displayName": "Legendary Dynamo",
+      "rarity": "Legendary",
+      "buyPrice": 1300,
+      "incomePerSecond": 70,
+      "spawnWeight": 6,
+      "moveSpeed": 6.3,
+      "specialTrait": "GlobalAnnouncement"
+    },
+    {
+      "id": "secret_bot",
+      "displayName": "Secret Singularity",
+      "rarity": "Secret",
+      "buyPrice": 2800,
+      "incomePerSecond": 155,
+      "spawnWeight": 1,
+      "moveSpeed": 6.8,
+      "specialTrait": "UltraRare"
+    }
+  ]
+}
