@@ -1,122 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>SECURITY BREACH</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    color: red;
-    font-family: monospace;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .container {
-    text-align: center;
-    animation: shake 0.1s infinite;
-  }
-
-  h1 {
-    font-size: 60px;
-    text-shadow: 0 0 20px red;
-  }
-
-  p {
-    font-size: 20px;
-  }
-
-  #terminal {
-    margin-top: 20px;
-    width: 80vw;
-    height: 40vh;
-    background: black;
-    border: 2px solid red;
-    padding: 10px;
-    overflow-y: auto;
-    text-align: left;
-    color: #00ff00;
-  }
-
-  @keyframes shake {
-    0% { transform: translate(1px, 1px); }
-    50% { transform: translate(-1px, -1px); }
-    100% { transform: translate(1px, -1px); }
-  }
-
-  .blink {
-    animation: blink 1s infinite;
-  }
-
-  @keyframes blink {
-    50% { opacity: 0; }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contested Lane MVP Client</title>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; margin: 24px; background: #0f172a; color: #e2e8f0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { background: #1e293b; border-radius: 10px; padding: 14px; border: 1px solid #334155; }
+    button { margin: 4px 8px 4px 0; padding: 8px 12px; cursor: pointer; }
+    #log { height: 240px; overflow: auto; background: #020617; padding: 8px; border-radius: 8px; }
+    .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    input { padding: 8px; }
+  </style>
 </head>
 <body>
+  <h1>Contested Public Spawn MVP (Debug Client)</h1>
+  <div class="row">
+    <input id="name" placeholder="Display name" value="Tester" />
+    <button id="joinBtn">Join Session</button>
+  </div>
 
-<div class="container">
-  <h1 class="blink">⚠ YOU HAVE BEEN HACKED ⚠</h1>
-  <p>Remote access established</p>
-  <p>IP Address: <span id="ip">192.168.0.1</span></p>
+  <div class="grid">
+    <div class="card">
+      <h3>Player</h3>
+      <div id="me">Not connected</div>
+      <button id="activateShield">Activate Shield</button>
+      <button id="dropOff">Drop Off Carried Unit</button>
+      <button id="interrupt">Simulate Interrupt</button>
+    </div>
 
-  <div id="terminal"></div>
-</div>
+    <div class="card">
+      <h3>Units (Neutral + Owned)</h3>
+      <div id="units"></div>
+    </div>
 
-<audio autoplay loop>
-  <source src="https://www.soundjay.com/button/sounds/beep-10.mp3" type="audio/mpeg">
-</audio>
+    <div class="card" style="grid-column: span 2;">
+      <h3>Event Log</h3>
+      <div id="log"></div>
+    </div>
+  </div>
 
-<script>
-  // Fake IP generator
-  document.getElementById("ip").innerText =
-    Math.floor(Math.random()*255)+"."+
-    Math.floor(Math.random()*255)+"."+
-    Math.floor(Math.random()*255)+"."+
-    Math.floor(Math.random()*255);
+  <script>
+    const ws = new WebSocket("ws://localhost:8080");
+    const meEl = document.getElementById("me");
+    const unitsEl = document.getElementById("units");
+    const logEl = document.getElementById("log");
 
-  const terminal = document.getElementById("terminal");
+    let myId = null;
+    let latest = null;
 
-  const lines = [
-    "Initializing breach protocol...",
-    "Bypassing firewall...",
-    "Accessing system files...",
-    "Downloading browser history...",
-    "Uploading passwords...",
-    "Accessing webcam...",
-    "Encrypting files...",
-    "Deleting system32...",
-    "ERROR: User panic detected 😈",
-    "",
-    "Just kidding.",
-    "This is a prank website 😂",
-    "Close the tab, you're safe."
-  ];
-
-  let i = 0;
-
-  function addLine() {
-    if (i < lines.length) {
-      terminal.innerHTML += lines[i] + "<br>";
-      terminal.scrollTop = terminal.scrollHeight;
-      i++;
-      setTimeout(addLine, 800);
+    function rarityColor(rarity) {
+      return ({ Common: "#94a3b8", Rare: "#38bdf8", Epic: "#a78bfa", Legendary: "#f59e0b", Secret: "#f43f5e" })[rarity] || "#fff";
     }
-  }
 
-  addLine();
+    function log(message) {
+      const line = document.createElement("div");
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logEl.prepend(line);
+    }
 
-  // Try fullscreen (user can exit with ESC)
-  document.documentElement.requestFullscreen().catch(() => {});
-</script>
+    function render() {
+      if (!latest || !myId) return;
+      const me = latest.players?.find(p => p.playerId === myId);
+      meEl.textContent = me
+        ? `Currency: ${me.currentCurrency.toFixed(1)} | Base: ${me.currentBaseId} | Carrying: ${me.carriedUnitId ?? "None"}`
+        : "Unknown player";
 
+      const sorted = [...(latest.units || [])].sort((a, b) => a.displayName.localeCompare(b.displayName));
+      unitsEl.innerHTML = "";
+      sorted.forEach((u) => {
+        const div = document.createElement("div");
+        div.style.marginBottom = "6px";
+        div.innerHTML = `<span style="color:${rarityColor(u.rarity)}">${u.displayName}</span> [${u.currentState}] price/income: ${u.definitionId} -> ${u.incomePerSecond}/s`;
+
+        if (u.currentState === "NeutralOnLane") {
+          const btn = document.createElement("button");
+          btn.textContent = "Claim";
+          btn.onclick = () => ws.send(JSON.stringify({ type: "claim", unitId: u.unitInstanceId }));
+          div.appendChild(btn);
+        }
+
+        if (u.currentState === "OwnedPlaced" && u.ownerPlayerId !== myId) {
+          const btn = document.createElement("button");
+          btn.textContent = "Steal";
+          btn.onclick = () => ws.send(JSON.stringify({ type: "steal", unitId: u.unitInstanceId }));
+          div.appendChild(btn);
+        }
+
+        unitsEl.appendChild(div);
+      });
+    }
+
+    ws.onopen = () => log("Connected to authoritative server");
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.type === "joined") {
+        myId = msg.playerId;
+        log(`Joined as ${myId}`);
+      }
+      if (msg.type === "claim_result" && !msg.ok) log(`Claim failed: ${msg.reason}`);
+      if (msg.type === "steal_result" && !msg.ok) log(`Steal failed: ${msg.reason}`);
+      if (msg.type === "dropoff_result") log(`Dropoff ${msg.ok ? "succeeded" : `failed: ${msg.reason}`}`);
+      if (msg.type === "tick") {
+        latest = msg.snapshot;
+        render();
+      }
+    };
+
+    document.getElementById("joinBtn").onclick = () => {
+      const displayName = document.getElementById("name").value || "Tester";
+      ws.send(JSON.stringify({ type: "join", displayName }));
+    };
+    document.getElementById("activateShield").onclick = () => ws.send(JSON.stringify({ type: "activate_shield" }));
+    document.getElementById("dropOff").onclick = () => ws.send(JSON.stringify({ type: "dropoff" }));
+    document.getElementById("interrupt").onclick = () => ws.send(JSON.stringify({ type: "interrupt_carry" }));
+  </script>
 </body>
 </html>
